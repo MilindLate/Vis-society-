@@ -1,0 +1,8 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# Raw data files that cannot be published
+src/data/warren_group_*.csv
+src/data/raw/

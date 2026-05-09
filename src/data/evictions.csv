@@ -1,0 +1,49 @@
+neighborhood,year,evictions,rate
+Allston,2018,142,3.4
+Allston,2019,158,3.7
+Allston,2020,48,1.1
+Allston,2021,89,2.1
+Allston,2022,201,4.6
+Allston,2023,218,4.9
+East Boston,2018,310,3.1
+East Boston,2019,345,3.5
+East Boston,2020,102,1.0
+East Boston,2021,198,2.0
+East Boston,2022,421,4.1
+East Boston,2023,469,4.5
+Roxbury,2018,420,3.8
+Roxbury,2019,465,4.1
+Roxbury,2020,138,1.2
+Roxbury,2021,265,2.4
+Roxbury,2022,558,4.9
+Roxbury,2023,610,5.2
+Dorchester,2018,680,3.1
+Dorchester,2019,750,3.4
+Dorchester,2020,220,1.0
+Dorchester,2021,420,1.9
+Dorchester,2022,890,4.0
+Dorchester,2023,980,4.3
+Back Bay,2018,45,1.5
+Back Bay,2019,48,1.5
+Back Bay,2020,18,0.6
+Back Bay,2021,32,1.0
+Back Bay,2022,52,1.6
+Back Bay,2023,55,1.7
+South End,2018,95,1.8
+South End,2019,102,1.9
+South End,2020,35,0.6
+South End,2021,68,1.2
+South End,2022,115,2.1
+South End,2023,122,2.2
+Jamaica Plain,2018,185,2.2
+Jamaica Plain,2019,205,2.4
+Jamaica Plain,2020,62,0.7
+Jamaica Plain,2021,118,1.4
+Jamaica Plain,2022,248,2.9
+Jamaica Plain,2023,270,3.1
+South Boston,2018,165,2.3
+South Boston,2019,182,2.5
+South Boston,2020,55,0.7
+South Boston,2021,105,1.4
+South Boston,2022,218,2.9
+South Boston,2023,238,3.1
