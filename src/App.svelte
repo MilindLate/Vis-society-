@@ -1,34 +1,34 @@
 <script>
   import { onMount } from 'svelte'
-  import { loadAll } from './lib/utils/dataLoader.js'
-  import { dataLoaded, selectedNeighborhood } from './lib/stores/index.js'
+  import { loadAll }  from './lib/utils/dataLoader.js'
+  import { dataLoaded } from './lib/stores/index.js'
 
-  import Tooltip       from './lib/components/Tooltip.svelte'
-  import Scrolly       from './lib/components/Scrolly.svelte'
-  import ChartPlaceholder from './lib/components/ChartPlaceholder.svelte'
+  import Tooltip    from './lib/components/Tooltip.svelte'
+  import Scrolly    from './lib/components/Scrolly.svelte'
+  import ChartPanel from './lib/components/ChartPanel.svelte'
 
-  // Story steps — each one drives what the chart shows
-  // You'll update these in Phase 4 when real charts are built
+  // Narrative steps — each drives the chart panel via activeStep store.
+  // Subtext shown in smaller type below the main sentence.
   const steps = [
     {
-      text: "Boston's housing costs have nearly doubled over the last decade. In 2013, the median rent was $1,400/month. By 2023, it had climbed to $2,700 — pricing out long-time residents across entire neighborhoods.",
-      subtext: "Source: ACS 2013–2023, US Census Bureau"
+      text: "Boston's housing costs have nearly doubled over the last decade. In 2013, the average neighborhood median rent was around $1,400/month. By 2023, it had climbed past $2,700 — pricing out long-time residents across the city.",
+      subtext: "Map: Median monthly rent by neighborhood (2023). Click any neighborhood to explore it."
     },
     {
-      text: "The surge hasn't been uniform. Neighborhoods like East Boston and Roxbury saw rent increases of over 80% — far outpacing income growth in the same period.",
-      subtext: "Darker colors indicate higher rent growth since 2013."
+      text: "The surge hasn't been uniform. South Boston and Back Bay saw the steepest climbs. Meanwhile, Roxbury and East Boston — historically lower-income, majority-renter neighborhoods — experienced the highest growth rates, leaving residents with the fewest alternatives.",
+      subtext: "Bars show % rent growth 2013–2023. Sorted by growth rate."
     },
     {
-      text: "Eviction filings tell another story. Corporate landlords — those owning 10+ units — filed evictions at 3× the rate of individual landlords in 2022 and 2023.",
-      subtext: "Source: MAPC Eviction Records dataset"
+      text: "Eviction filings tell another story. Corporate landlords — those owning 10 or more units — filed evictions at nearly 3× the rate of individual landlords in 2022 and 2023. Roxbury and Dorchester bear the heaviest burden.",
+      subtext: "Map: Eviction rate per 1,000 renters (2023). Redder = higher rate."
     },
     {
-      text: "Transit access shapes housing demand. Properties within half a mile of an MBTA station sell for 22% more than comparable units further away — pushing lower-income renters to car-dependent outer neighborhoods.",
-      subtext: "Source: Warren Group Sales Data (via MAPC)"
+      text: "Transit access shapes sale prices — and shapes who can afford to stay. Properties within half a mile of an MBTA station sell for a significant premium, compressing affordable options into car-dependent outer neighborhoods.",
+      subtext: "Lines show median sale price over time. Select a neighborhood to isolate its trend."
     },
     {
-      text: "The legacy of 1960s redlining still shapes today's map. Neighborhoods historically graded 'D' (Hazardous) by the HOLC now have eviction rates 4× higher than those graded 'A'.",
-      subtext: "Source: Mapping Inequality, University of Richmond"
+      text: "The legacy of 1960s redlining echoes today. Neighborhoods historically graded 'D' (Hazardous) by the HOLC now show eviction rates up to 4× higher than those graded 'A' — a pattern that maps almost exactly onto race.",
+      subtext: "Compare eviction rates across neighborhoods. The divide between high- and low-rated areas persists."
     },
   ]
 
@@ -37,113 +37,126 @@
   })
 </script>
 
-<!-- Global tooltip — always rendered, controlled by store -->
+<!-- Global tooltip — one instance, driven by store -->
 <Tooltip />
 
-<!-- =============================================
-     HERO SECTION
-     ============================================= -->
+<!-- ── HERO ──────────────────────────────────── -->
 <header class="hero">
   <div class="hero-inner">
-    <div class="hero-tag ui-text">MIT Vis & Society · Spring 2026</div>
-    <h1 class="hero-title">Who Can Afford<br/><em>Boston?</em></h1>
+    <span class="hero-eyebrow ui-text">MIT · Interactive Visualization &amp; Society · Spring 2026</span>
+    <h1 class="hero-title">
+      Who Can Afford<br />
+      <em>Boston?</em>
+    </h1>
     <p class="hero-subtitle">
-      An interactive data story about the housing affordability crisis
-      in Greater Boston — who's being priced out, who's profiting,
-      and what the data reveals about our city's future.
+      An interactive data story about the housing affordability crisis in
+      Greater Boston — who is being priced out, who is profiting, and what
+      the data reveals about our city's future.
     </p>
     <div class="hero-meta ui-text">
+      <span>Data: MAPC · ACS 2013–2023 · Census 2020</span>
+      <span class="sep" aria-hidden="true">·</span>
       <span>Built in partnership with MAPC</span>
-      <span class="dot">·</span>
-      <span>Data: ACS 2013–2023, MAPC, Census 2020</span>
     </div>
-    <a href="#story" class="scroll-cue" aria-label="Scroll to begin reading">
-      <span class="ui-text">Scroll to explore</span>
+    <a href="#story" class="scroll-cue ui-text" aria-label="Scroll to begin the story">
+      Scroll to explore
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path d="M8 3v10M3 9l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 3v10M3 9l5 5 5-5"
+          stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </a>
   </div>
-
-  <!-- Background texture -->
-  <div class="hero-bg" aria-hidden="true">
-    <div class="hero-grid"></div>
-  </div>
+  <div class="hero-grid" aria-hidden="true"></div>
 </header>
 
-<!-- =============================================
-     INTRO PARAGRAPH
-     ============================================= -->
-<section class="intro" id="story">
+<!-- ── INTRO ─────────────────────────────────── -->
+<section class="intro" aria-labelledby="intro-heading">
   <div class="intro-inner">
+    <h2 id="intro-heading" class="sr-only">Introduction</h2>
     <p class="intro-text">
       Greater Boston is in a housing crisis. Rents have surged, evictions have
       climbed, and the gap between who can afford to stay and who is forced to
-      leave has never been wider. But the crisis is not evenly distributed —
-      it follows the fault lines of race, income, and history.
+      leave has never been wider. But the crisis does not fall evenly — it
+      follows the fault lines of race, income, and history.
     </p>
     <p class="intro-text">
-      Using data from the Metropolitan Area Planning Council, the US Census,
-      and public records, this story maps the crisis neighborhood by neighborhood.
-      Scroll to explore.
+      Using data from the Metropolitan Area Planning Council, the US Census
+      Bureau, and public eviction records, this story maps the crisis
+      neighborhood by neighborhood. Scroll to explore.
+    </p>
+    <p class="intro-hint ui-text">
+      💡 Click any neighborhood on the map to filter all charts to that area.
     </p>
   </div>
 </section>
 
-<!-- =============================================
-     MAIN SCROLLYTELLING SECTION
-     ============================================= -->
-<main class="story-section">
+<!-- ── SCROLLYTELLING ────────────────────────── -->
+<main id="story" aria-label="Interactive data story">
   {#if !$dataLoaded}
     <div class="loading" role="status" aria-live="polite">
-      <div class="loading-spinner" aria-hidden="true"></div>
+      <div class="spinner" aria-hidden="true"></div>
       <p class="ui-text">Loading data…</p>
     </div>
   {:else}
     <Scrolly {steps}>
-      <!-- The sticky chart panel -->
       <svelte:fragment slot="chart">
-        <ChartPlaceholder />
-        <!-- Phase 4: replace ChartPlaceholder with your real chart -->
-        <!-- e.g. <ChoroplethMap /> or <LineChart /> -->
+        <ChartPanel />
       </svelte:fragment>
     </Scrolly>
   {/if}
 </main>
 
-<!-- =============================================
-     SELECTED NEIGHBORHOOD CALLOUT
-     ============================================= -->
-{#if $selectedNeighborhood}
-  <div class="neighborhood-banner" role="status">
-    <p class="ui-text">
-      Viewing: <strong>{$selectedNeighborhood}</strong>
-      <button
-        class="clear-btn ui-text"
-        onclick={() => selectedNeighborhood.set(null)}
-      >
-        Clear ✕
-      </button>
-    </p>
+<!-- ── CALLOUT ───────────────────────────────── -->
+<section class="callout" aria-labelledby="callout-heading">
+  <div class="callout-inner">
+    <h2 id="callout-heading">What Can Be Done?</h2>
+    <div class="callout-grid">
+      <div class="callout-card">
+        <span class="callout-icon" aria-hidden="true">🏗️</span>
+        <h3>Increase Supply</h3>
+        <p>Zoning reform to allow more multifamily housing near transit reduces pressure on existing stock and creates more options for lower-income renters.</p>
+      </div>
+      <div class="callout-card">
+        <span class="callout-icon" aria-hidden="true">🛡️</span>
+        <h3>Strengthen Protections</h3>
+        <p>Just-cause eviction laws and rent stabilization policies reduce displacement risk in neighborhoods with the highest eviction rates.</p>
+      </div>
+      <div class="callout-card">
+        <span class="callout-icon" aria-hidden="true">📊</span>
+        <h3>Invest in Data</h3>
+        <p>Better tracking of corporate landlord activity and displacement patterns enables more targeted policy intervention at the neighborhood level.</p>
+      </div>
+    </div>
   </div>
-{/if}
+</section>
 
-<!-- =============================================
-     FOOTER
-     ============================================= -->
-<footer class="footer">
+<!-- ── FOOTER ────────────────────────────────── -->
+<footer class="footer" aria-label="Project information and data sources">
   <div class="footer-inner">
     <div class="footer-left">
-      <p class="footer-title">Housing Affordability in Metro Boston</p>
-      <p class="footer-sub ui-text">
-        MIT Interactive Visualization & Society · Spring 2026
+      <p class="footer-title">Who Can Afford Boston?</p>
+      <p class="footer-sub ui-text">MIT Interactive Visualization &amp; Society · Spring 2026</p>
+      <p class="footer-sub ui-text" style="margin-top: 0.5rem;">
+        Built in partnership with the
+        <a href="https://www.mapc.org" target="_blank" rel="noopener noreferrer">
+          Metropolitan Area Planning Council
+        </a>
       </p>
     </div>
     <div class="footer-right ui-text">
-      <p>Data sources: MAPC, Warren Group (via MAPC), ACS 2013–2023,</p>
-      <p>Census 2020, MassDOT, MassGIS, Mapping Inequality</p>
+      <p class="footer-sources-title">Data Sources</p>
+      <ul class="footer-sources">
+        <li>American Community Survey (ACS) 2013–2023, US Census Bureau</li>
+        <li>Census 2020, US Census Bureau</li>
+        <li>MAPC Eviction Records Dataset</li>
+        <li>Warren Group Residential Sales (via MAPC) — not published per DUA</li>
+        <li>MassDOT / MBTA Transit Data</li>
+        <li>MassGIS Boundary Files</li>
+        <li>Mapping Inequality, University of Richmond (HOLC grades)</li>
+      </ul>
       <p class="footer-warning">
-        ⚠ Warren Group residential sales data not published per Data Use Agreement.
+        ⚠ Warren Group data used for analysis only; raw data not published per Data Use Agreement.
       </p>
     </div>
   </div>
@@ -157,7 +170,7 @@
     display: flex;
     align-items: center;
     overflow: hidden;
-    background: var(--color-text);
+    background: #0f0f0d;
     color: #fff;
   }
 
@@ -167,101 +180,109 @@
     max-width: var(--max-width);
     margin: 0 auto;
     padding: var(--space-24) var(--space-8);
+    width: 100%;
   }
 
-  .hero-tag {
+  .hero-eyebrow {
+    display: block;
     font-size: var(--text-xs);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.4);
     margin-bottom: var(--space-6);
   }
 
   .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(3rem, 8vw, 6rem);
+    font-size: clamp(3rem, 9vw, 6.5rem);
     font-weight: 700;
-    line-height: 1.05;
+    line-height: 1.0;
     color: #fff;
     margin-bottom: var(--space-6);
   }
 
   .hero-title em {
     font-style: italic;
-    color: var(--color-primary-light);
+    color: #e74c3c;
   }
 
   .hero-subtitle {
-    font-size: var(--text-xl);
+    font-size: clamp(var(--text-base), 2vw, var(--text-xl));
     line-height: var(--leading-loose);
-    color: rgba(255,255,255,0.75);
-    max-width: 600px;
+    color: rgba(255,255,255,0.65);
+    max-width: 580px;
     margin-bottom: var(--space-8);
     font-family: var(--font-body);
   }
 
   .hero-meta {
     font-size: var(--text-sm);
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.3);
     display: flex;
     gap: var(--space-3);
-    margin-bottom: var(--space-12);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-16);
   }
 
-  .dot { color: rgba(255,255,255,0.2); }
+  .sep { color: rgba(255,255,255,0.15); }
 
   .scroll-cue {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.4);
     text-decoration: none;
     font-size: var(--text-sm);
-    font-family: var(--font-ui);
     transition: color var(--transition-fast);
-    animation: bounce 2s ease-in-out infinite;
+    animation: nudge 2.2s ease-in-out infinite;
   }
 
-  .scroll-cue:hover { color: #fff; }
+  .scroll-cue:hover { color: rgba(255,255,255,0.9); }
+  .scroll-cue:focus-visible { color: #fff; }
 
-  @keyframes bounce {
+  @keyframes nudge {
     0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(6px); }
-  }
-
-  /* Background grid */
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
+    55%       { transform: translateY(7px); }
   }
 
   .hero-grid {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     background-image:
-      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
   }
 
   /* ── INTRO ── */
   .intro {
-    padding: var(--space-24) var(--space-8);
-    max-width: 740px;
+    max-width: 720px;
     margin: 0 auto;
+    padding: var(--space-24) var(--space-8);
   }
 
   .intro-text {
-    font-size: var(--text-xl);
+    font-size: clamp(var(--text-lg), 2vw, var(--text-xl));
     line-height: var(--leading-loose);
-    color: var(--color-text);
     margin-bottom: var(--space-6);
   }
 
+  .intro-hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    background: var(--color-secondary-pale);
+    border: 1px solid #b7dfd1;
+    border-radius: var(--border-radius);
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-4);
+    display: inline-block;
+  }
+
   /* ── STORY ── */
-  .story-section {
-    padding: var(--space-16) 0;
+  #story {
+    padding: var(--space-12) 0 var(--space-24);
     min-height: 100vh;
   }
 
@@ -277,50 +298,74 @@
     font-size: var(--text-sm);
   }
 
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
+  .spinner {
+    width: 36px;
+    height: 36px;
     border: 2px solid var(--color-border);
     border-top-color: var(--color-primary);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 0.75s linear infinite;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── NEIGHBORHOOD BANNER ── */
-  .neighborhood-banner {
-    position: fixed;
-    bottom: var(--space-6);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--color-text);
+  /* ── CALLOUT ── */
+  .callout {
+    background: #0f0f0d;
     color: #fff;
-    padding: var(--space-3) var(--space-6);
-    border-radius: 100px;
-    font-size: var(--text-sm);
-    z-index: 500;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    padding: var(--space-24) var(--space-8);
+    margin-top: var(--space-24);
   }
 
-  .clear-btn {
-    background: none;
-    border: none;
+  .callout-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .callout h2 {
+    font-family: var(--font-display);
+    font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+    color: #fff;
+    margin-bottom: var(--space-12);
+  }
+
+  .callout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .callout-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+  }
+
+  .callout-icon {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .callout-card h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: #fff;
+    margin-bottom: var(--space-3);
+  }
+
+  .callout-card p {
+    font-size: var(--text-base);
+    line-height: var(--leading-loose);
     color: rgba(255,255,255,0.6);
-    cursor: pointer;
-    margin-left: var(--space-4);
-    font-size: var(--text-sm);
-    transition: color var(--transition-fast);
+    font-family: var(--font-body);
   }
-
-  .clear-btn:hover { color: #fff; }
 
   /* ── FOOTER ── */
   .footer {
-    background: var(--color-text);
-    color: rgba(255,255,255,0.5);
-    padding: var(--space-12) var(--space-8);
-    margin-top: var(--space-24);
+    background: #0a0a08;
+    padding: var(--space-16) var(--space-8);
   }
 
   .footer-inner {
@@ -328,29 +373,62 @@
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    gap: var(--space-8);
+    gap: var(--space-12);
     flex-wrap: wrap;
   }
 
   .footer-title {
     font-family: var(--font-display);
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
     color: #fff;
     margin-bottom: var(--space-2);
   }
 
   .footer-sub {
     font-size: var(--text-sm);
+    color: rgba(255,255,255,0.4);
+  }
+
+  .footer-sub a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .footer-right {
+    max-width: 420px;
+  }
+
+  .footer-sources-title {
     font-size: var(--text-xs);
-    line-height: 1.8;
-    text-align: right;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: var(--space-3);
+  }
+
+  .footer-sources {
+    list-style: none;
+    font-size: var(--text-xs);
+    color: rgba(255,255,255,0.35);
+    line-height: 2;
   }
 
   .footer-warning {
-    color: rgba(255, 180, 100, 0.7);
-    margin-top: var(--space-2);
+    margin-top: var(--space-4);
+    font-size: var(--text-xs);
+    color: rgba(255, 180, 80, 0.6);
+  }
+
+  /* ── UTILITIES ── */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border-width: 0;
   }
 </style>
